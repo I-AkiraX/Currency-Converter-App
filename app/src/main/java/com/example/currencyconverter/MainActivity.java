@@ -4,59 +4,66 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.currencyconverter.databinding.ActivityMainBinding;
+
+import org.w3c.dom.Text;
+
 public class MainActivity extends AppCompatActivity {
+    ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        final EditText rs = (EditText) findViewById(R.id.editTextRupee);
-        Button cal = (Button) findViewById(R.id.button);
-        Button rev = (Button) findViewById(R.id.button2);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        final EditText rs = binding.enterAmount;
+        Button cal = binding.calculate;
+        Button rev = binding.reverse;
+        TextView result = binding.result;
+        final String usdresult = "USD: ";
+        final String inrresult = "INR: ";
 
-        cal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String rss = rs.getText().toString();
-                if(rss.equals("")){
-                    Toast.makeText(getApplicationContext(),"Empty field!",Toast.LENGTH_LONG).show();
+        cal.setOnClickListener(view -> {
+            String rss = rs.getText().toString();
+            if(rss.equals("")){
+                Toast.makeText(getApplicationContext(),"Empty field!",Toast.LENGTH_LONG).show();
+            }
+            else{
+                TextView enterText = binding.enterText;
+                double rsd = Double.parseDouble(rss);
+                if(enterText.getText().toString().equals("Enter the amount in Rupees:")){
+                    final String rsss = rsd/73.76+"$";
+                    //Toast.makeText(getApplicationContext(),rsss,Toast.LENGTH_LONG).show();
+                    result.setText(String.format("%s%s", usdresult, rsss));
                 }
                 else{
-                    TextView inr = (TextView) findViewById(R.id.textView);
-                    double rsd = Double.parseDouble(rss);
-                    if(inr.getText().toString().equals("Enter the amount in Rupees:")){
-                        final CharSequence rsss = rsd/73.76+"$";
-                        Toast.makeText(getApplicationContext(),rsss,Toast.LENGTH_LONG).show();
-                    }
-                    else{
-                        final CharSequence usds = rsd*73.76+"inr";
-                        Toast.makeText(getApplicationContext(),usds,Toast.LENGTH_LONG).show();
-                    }
+                    final String usds = rsd*73.76+"₹";
+                    //Toast.makeText(getApplicationContext(),usds,Toast.LENGTH_LONG).show();
+                    result.setText(String.format("%s%s", inrresult, usds));
                 }
             }
         });
-        rev.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TextView inr = (TextView) findViewById(R.id.textView);
-                ImageView img = (ImageView) findViewById(R.id.imageView);
-                if(inr.getText().toString().equals("Enter the amount in Rupees:")){
-                    inr.setText("Enter the amount in Dollars:");
-                    rs.setHint("Dollars...");
-                    img.setImageResource(R.drawable.inr);
+        rev.setOnClickListener(view -> {
+            result.setText("");
+            TextView enterText = binding.enterText;
+            ImageView img = binding.imageView;
+            if(enterText.getText().toString().equals("Enter the amount in Rupees:")){
+                enterText.setText(R.string.enter_dollar);
+                rs.setHint("Dollars...");
+                img.setImageResource(R.drawable.inr);
 
-                }
-                else{
-                    inr.setText("Enter the amount in Rupees:");
-                    rs.setHint("Rupees...");
-                    img.setImageResource(R.drawable.dollar);
-                }
+            }
+            else{
+                enterText.setText(R.string.enter_rupee);
+                rs.setHint("Rupees...");
+                img.setImageResource(R.drawable.dollar);
             }
         });
     }
